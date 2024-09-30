@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   font_awesome_flutter: ^10.4.0
-
+  persistent_bottom_nav_bar: ^5.0.0
 
   cupertino_icons: ^1.0.8
   icons_plus: ^4.0.0
@@ -30,6 +30,15 @@ flutter:
 
   # Add custom fonts section here:
   fonts:
-    - family: LeagueSpartan
-      fonts:
-        - asset: assets/fonts/LeagueSpartan-Regular.ttf
+  - family: LeagueSpartan
+    fonts:
+      - asset: assets/fonts/LeagueSpartan-ExtraLight.ttf
+      - asset: assets/fonts/LeagueSpartan-Light.ttf
+      - asset: assets/fonts/LeagueSpartan-Thin.ttf
+      - asset: assets/fonts/LeagueSpartan-Medium.ttf
+      - asset: assets/fonts/LeagueSpartan-Regular.ttf
+      - asset: assets/fonts/LeagueSpartan-SemiBold.ttf
+      - asset: assets/fonts/LeagueSpartan-Bold.ttf
+      - asset: assets/fonts/LeagueSpartan-ExtraBold.ttf
+      - asset: assets/fonts/LeagueSpartan-Black.ttf
+

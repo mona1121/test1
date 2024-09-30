@@ -34,8 +34,9 @@ class WelcomeScreen extends StatelessWidget{
                          TextSpan(
                            text: '\nEnhance Your Shopping Experience',
                            style: TextStyle(
+                            fontFamily: 'LeagueSpartan',
                              fontSize: 20,
-                             //height: 0,
+                             fontWeight: FontWeight.w300,
                            )
                          )
                        ]

@@ -93,8 +93,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Phone Number';
-                          } else if (value.length != 10) {
-                            return 'Enter a valid 10-digit Phone Number';
+                          } else if (value.length != 9) {
+                            return 'Enter a valid 9-digit Phone Number';
                           }
                           return null;
                         },
