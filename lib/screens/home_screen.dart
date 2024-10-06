@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:test1/screens/cart_screen.dart';
 import '../widgets/custom_scaffold.dart';
 import '../components/navigation_bar.dart';
-import '../widgets/more_button.dart'; // Import the new more button widget
+// Import the new more button widget
 import 'history_transactions.dart'; // Import the history transactions screen
+import 'scanner_screen.dart'; // Import the scanner screen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -110,8 +112,11 @@ class _HomeScreenState extends State<HomeScreen> {
       // Floating action button for scan
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Handle scan button action
-          Navigator.pushNamed(context, '/scan');
+          // Navigate to the ScannerScreen when the button is clicked
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ScannerScreen()),
+          );
         },
         tooltip: 'Scan',
         child: const Icon(Icons.qr_code_scanner_rounded),
@@ -124,10 +129,17 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pushNamed(context, '/home');
         },
         onCartTap: () {
-          Navigator.pushNamed(context, '/cart');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CartScreen()),
+          );
         },
         onScanTap: () {
-          Navigator.pushNamed(context, '/scan');
+          // You can also navigate to the scanner screen from the nav bar if needed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ScannerScreen()),
+          );
         },
       ),
     );
@@ -215,7 +227,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         // Navigate to the full transaction list page
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const HistoryTransactionsScreen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HistoryTransactionsScreen()),
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40), // Adjusted padding for a shorter button
