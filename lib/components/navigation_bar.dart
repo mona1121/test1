@@ -6,11 +6,11 @@ class CustomNavBar extends StatelessWidget {
   final Function onScanTap;
 
   const CustomNavBar({
-    super.key,
+    Key? key,
     required this.onHomeTap,
     required this.onCartTap,
     required this.onScanTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

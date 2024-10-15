@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:test1/screens/signup_screen.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:test1/firebase_auth_implementation/firebase_auth_services.dart';
-import '../widgets/custom_scaffold.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; 
+import '../widgets/custom_scaffold.dart'; 
 import 'package:test1/screens/home_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,20 +15,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formLoginKey = GlobalKey<FormState>();
   bool rememberPassword = true;
-
-  final FirebaseAuthService _auth = FirebaseAuthService();
-
-  // Declare controllers
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    // Dispose of controllers to prevent memory leaks
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +57,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
-                          controller: _emailController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter Email';
@@ -101,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
-                          controller: _passwordController,
                           obscureText: true,
                           obscuringCharacter: '*',
                           validator: (value) {
@@ -165,10 +148,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              print("Log in button pressed");
-                              if (_formLoginKey.currentState!.validate()) {
-                                await _logIn(); // Call the _logIn function
+                            onPressed: () {
+                              if (_formLoginKey.currentState!.validate() &&
+                                  rememberPassword) {
+                                Navigator.push(
+                                context,
+                                 MaterialPageRoute(
+                                builder: (context) => const HomeScreen(),
+                                  ),
+                                );
+                              } else if (!rememberPassword) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Please agree to the processing of personal data',
+                                    ),
+                                  ),
+                                );
                               }
                             },
                             child: const Text('Log in'),
@@ -241,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const SignupScreen(),
+                                    builder: (e) => const SignupScreen(),
                                   ),
                                 );
                               },
@@ -267,42 +263,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  // Define the _logIn method to handle login
-// Define the _logIn method to handle login
-  Future<void> _logIn() async {
-    if (_formLoginKey.currentState!.validate()) {
-      try {
-        // Attempt to log in the user with email and password
-        User? user = await _auth.logInWithEmailAndPassword(
-          _emailController.text,
-          _passwordController.text,
-        );
-
-        if (user != null) {
-          // Login successful, navigate to HomeScreen
-          print("User is successfully logged in");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
-            ),
-          );
-        } else {
-          // Handle the case where user is null
-          print("Login failed: No user returned");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Login failed: Invalid credentials")),
-          );
-        }
-      } catch (e) {
-        // Handle login errors
-        print("Error during login: $e");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login failed: ${e.toString()}")),
-        );
-      }
-    }
-  }
 }
-

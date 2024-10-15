@@ -5,7 +5,7 @@ import 'package:test1/widgets/custom_scaffold.dart'; // Assuming this exists for
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const VerificationScreen({super.key, required this.phoneNumber});
+  const VerificationScreen({Key? key, required this.phoneNumber}) : super(key: key);
 
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
@@ -63,7 +63,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // OTP Verification title
-                      const Text(
+                      Text(
                         'OTP Verification',
                         style: TextStyle(
                           fontSize: 30.0,
@@ -149,13 +149,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
                               }
                             }
                           },
+                          child: const Text('Verify'),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 15),
                           ),
-                          child: const Text('Verify'),
                         ),
                       ),
                       const SizedBox(height: 30.0),
@@ -166,7 +166,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             const SnackBar(content: Text('Resending OTP...')),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           'Resend OTP',
                           style: TextStyle(
                             color: Colors.blue,
