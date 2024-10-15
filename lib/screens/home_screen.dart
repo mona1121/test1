@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:test1/screens/cart_screen.dart';
 import '../widgets/custom_scaffold.dart';
 import '../components/navigation_bar.dart';
-// Import the new more button widget
-import 'history_transactions.dart'; // Import the history transactions screen
-import 'scanner_screen.dart'; // Import the scanner screen
+import 'history_transactions.dart';
+import 'scanner_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,21 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // Empty container for future content
             const SizedBox(height: 20),
+
+            // Empty placeholder container
             Container(
               width: double.infinity,
-              height: 200, // Height placeholder for your future content
-              color: Colors.black, // Optional background color for visibility
+              height: 200,
+              color: Colors.black,
             ),
 
             const SizedBox(height: 20),
 
-            // Last Transaction View
+            // Last Transaction Section
             Expanded(
               child: Container(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 20), // Added padding to the bottom
-                color: Colors.grey[100], // Background color to separate sections
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
+                color: Colors.grey[100],
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -78,25 +78,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Today's Transactions
                             _buildTransactionSection('Today, Sept 29', [
                               _buildTransactionRow('Jarir BookStore', '09:00 AM', '238.7 SAR', 'J'),
-                              const SizedBox(height: 14), // Add space between transactions
+                              const SizedBox(height: 14),
                               _buildTransactionRow('Nahdi Group', '12:00 PM', '55.87 SAR', 'N'),
                             ]),
                             const SizedBox(height: 20),
-
-                            // Previous Day's Transactions
                             _buildTransactionSection('Yesterday, Sept 28', [
                               _buildTransactionRow('Whites', '07:30 AM', '55.0 SAR', 'A'),
-                              const SizedBox(height: 14), // Add space between transactions
+                              const SizedBox(height: 14),
                               _buildTransactionRow('Sephora', '08:38 PM', '522.75 SAR', 'S'),
                             ]),
 
                             const SizedBox(height: 20),
 
-                            // "More" button at the bottom
-                            _buildMoreButton(context), // Call the new button function
+                            // "More" button
+                            _buildMoreButton(context),
                           ],
                         ),
                       ),
@@ -109,10 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // Floating action button for scan
+      // Floating action button for scanning
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to the ScannerScreen when the button is clicked
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ScannerScreen()),
@@ -135,7 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         onScanTap: () {
-          // You can also navigate to the scanner screen from the nav bar if needed
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ScannerScreen()),
@@ -145,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Helper method to build the transaction section
+  // Helper methods
   Widget _buildTransactionSection(String title, List<Widget> transactions) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -165,15 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 14),
           const Divider(),
-          Column(
-            children: transactions,
-          ),
+          Column(children: transactions),
         ],
       ),
     );
   }
 
-  // Helper method to build a single transaction row
   Widget _buildTransactionRow(String name, String time, String amount, String initial) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,17 +185,11 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                 ),
                 Text(
                   time,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -211,39 +197,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         Text(
           amount,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-            color: Colors.black,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Colors.black),
           textAlign: TextAlign.right,
         ),
       ],
     );
   }
 
-  // Helper method to build the "More" button
   Widget _buildMoreButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to the full transaction list page
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const HistoryTransactionsScreen()),
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40), // Adjusted padding for a shorter button
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.white, // Set the background color to white
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey), // Optional: add a border for better visibility
+          border: Border.all(color: Colors.grey),
         ),
         child: const Text(
           'More',
           style: TextStyle(
-            color: Colors.black, // Changed text color to black for better contrast
+            color: Colors.black,
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),

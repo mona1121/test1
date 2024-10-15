@@ -168,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () async {
                               print("Log in button pressed");
                               if (_formLoginKey.currentState!.validate()) {
-                                await _logIn();  // Call the _logIn function
+                                await _logIn(); // Call the _logIn function
                               }
                             },
                             child: const Text('Log in'),
@@ -269,49 +269,40 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Define the _logIn method to handle login
+// Define the _logIn method to handle login
   Future<void> _logIn() async {
-    String email = _emailController.text;
-    String password = _passwordController.text;
+    if (_formLoginKey.currentState!.validate()) {
+      try {
+        // Attempt to log in the user with email and password
+        User? user = await _auth.logInWithEmailAndPassword(
+          _emailController.text,
+          _passwordController.text,
+        );
 
-    try {
-      // Try to log in using Firebase Authentication
-      User? user = await _auth.logInWithEmailAndPassword(email, password);
-
-      // Check if the user is successfully logged in
-      if (user != null) {
-        print("User successfully logged in");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
+        if (user != null) {
+          // Login successful, navigate to HomeScreen
+          print("User is successfully logged in");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+          );
+        } else {
+          // Handle the case where user is null
+          print("Login failed: No user returned");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Login failed: Invalid credentials")),
+          );
+        }
+      } catch (e) {
+        // Handle login errors
+        print("Error during login: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login failed: ${e.toString()}")),
         );
       }
-    } on FirebaseAuthException catch (e) {
-      // Handle Firebase-specific errors
-      if (e.code == 'user-not-found') {
-        print("No user found for that email.");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("No user found for that email.")),
-        );
-      } else if (e.code == 'wrong-password') {
-        print("Wrong password provided.");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Wrong password provided.")),
-        );
-      } else {
-        print("Error: ${e.message}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.message}")),
-        );
-      }
-    } catch (e) {
-      // Handle any other errors
-      print("Error logging in: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
     }
   }
-
 }
+
