@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mobile_scanner/mobile_scanner.dart'; // Updated import
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'product_identification.dart'; // Import the Product Identification screen
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({Key? key}) : super(key: key);
@@ -13,6 +14,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
   final TextEditingController _codeController = TextEditingController();
   Map<String, dynamic>? productData;
   bool isLoading = false;
+  bool showPopup = false;
+  bool isScanning = false; // To track if we're currently processing a scan
 
   // Function to search product by code
   Future<void> searchProduct(String code) async {
@@ -32,10 +35,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
       if (querySnapshot.docs.isNotEmpty) {
         setState(() {
           productData = querySnapshot.docs.first.data();
+          showPopup = true; // Show the popup after fetching product data
         });
       } else {
         setState(() {
           productData = null; // No product found
+          showPopup = false; // Hide the popup
         });
       }
     } catch (e) {
@@ -49,34 +54,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   // Function to scan barcode using the camera
   void scanBarcode() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Scan Barcode'),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context); // Go back to the previous screen
-              },
-            ),
-          ),
-          body: MobileScanner(
-            onDetect: (capture) {
-              final barcode = capture.barcodes.first;
-              String scannedCode = barcode.rawValue ?? '';
-
-              if (scannedCode.isNotEmpty) {
-                _codeController.text = scannedCode; // Update the TextField with scanned code
-                searchProduct(scannedCode);
-                Navigator.pop(context); // Close the scanner screen after scanning
-              }
-            },
-          ),
-        ),
-      ),
-    );
+    setState(() {
+      showPopup = false; // Hide the popup when starting a new scan
+      isScanning = false; // Reset scanning state
+    });
   }
 
   @override
@@ -85,83 +66,104 @@ class _ScannerScreenState extends State<ScannerScreen> {
       appBar: AppBar(
         title: const Text('Product Search'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product code input field
-            TextField(
-              controller: _codeController,
-              decoration: const InputDecoration(
-                labelText: 'Enter Product Code',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
+      body: Stack(
+        children: [
+          // Barcode Scanner
+          MobileScanner(
+            onDetect: (capture) {
+              if (isScanning) return; // Ignore further detections if already scanning
+              final barcode = capture.barcodes.first;
+              String scannedCode = barcode.rawValue ?? '';
 
-            // Scan barcode button
-            ElevatedButton.icon(
-              onPressed: scanBarcode, // Trigger the barcode scanner
-              icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Scan Barcode'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.blue, // Replaced deprecated 'primary'
-              ),
-            ),
+              if (scannedCode.isNotEmpty) {
+                _codeController.text = scannedCode; // Update the TextField with scanned code
+                isScanning = true; // Set scanning to true
+                searchProduct(scannedCode);
 
-            const SizedBox(height: 10),
+                // Delay to avoid multiple detections for the same barcode
+                Future.delayed(const Duration(seconds: 2), () {
+                  setState(() {
+                    isScanning = false; // Allow new scans after the delay
+                  });
+                });
+              }
+            },
+          ),
 
-            // Retrieve product data by code entered
-            ElevatedButton.icon(
-              onPressed: () {
-                if (_codeController.text.isNotEmpty) {
-                  searchProduct(_codeController.text); // Search with the entered code
-                }
-              },
-              icon: const Icon(Icons.search),
-              label: const Text('Search Product'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.green, // Button for searching by entered code
-              ),
-            ),
+          // Show loading spinner while fetching data
+          if (isLoading)
+            const Center(child: CircularProgressIndicator()),
 
-            const SizedBox(height: 20),
-
-            // Display loading spinner while fetching data
-            if (isLoading)
-              const Center(child: CircularProgressIndicator()),
-
-            // Display product details or "no product found"
-            if (!isLoading && productData != null)
-              Expanded(
-                child: ListView(
-                  children: [
-                    Text('Product: ${productData!['product']}', style: _textStyle()),
-                    Text('Brand: ${productData!['company']}', style: _textStyle()),
-                    Text('Price: \$${productData!['price']}', style: _textStyle()),
-                    Text('Description: ${productData!['description']}', style: _textStyle()),
-                    Text('Quantity: ${productData!['qty']}', style: _textStyle()),
-                    const SizedBox(height: 10),
-                    if (productData!['image'] != null)
-                      Image.network(productData!['image'], fit: BoxFit.cover)
-                    else
-                      const Text('No image available'),
+          // Show popup with product information
+          if (showPopup && productData != null)
+            Positioned(
+              bottom: 50, // Adjust as necessary
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8.0,
+                      spreadRadius: 1.0,
+                    ),
                   ],
                 ),
-              )
-            else if (!isLoading && productData == null)
-              const Text('No product found.', style: TextStyle(color: Colors.red)),
-          ],
-        ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (productData!['image'] != null)
+                      Image.network(
+                        productData!['image'],
+                        fit: BoxFit.cover,
+                        height: 50,
+                        width: 50,
+                      ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Product: ${productData!['product']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('Brand: ${productData!['company']}'),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              showPopup = false; // Close the popup
+                            });
+                            scanBarcode(); // Optionally reset scanner state
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the popup
+                            // Navigate to the Product Identification page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductIdentificationScreen(productData: productData!),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
-  }
-
-  // Helper method to style text
-  TextStyle _textStyle() {
-    return const TextStyle(fontSize: 16, fontWeight: FontWeight.w500);
   }
 }
