@@ -1,3 +1,5 @@
+import os
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 from fastapi import FastAPI, HTTPException
@@ -11,8 +13,13 @@ from typing import List
 app = FastAPI()
 
 # Firebase Initialization
-cred = credentials.Certificate('/Users/monaa/users-authentiation-firebase-adminsdk.json')
-firebase_admin.initialize_app(cred)
+firebase_credentials_json = os.getenv('FIREBASE_CREDENTIALS')
+if firebase_credentials_json:
+    cred = credentials.Certificate(json.loads(firebase_credentials_json))
+    firebase_admin.initialize_app(cred)
+else:
+    raise ValueError("Firebase credentials not found in environment variables.")
+
 db = firestore.client()
 
 # Load data from Firestore and prepare DataFrame
