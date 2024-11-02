@@ -2,9 +2,28 @@
   "project_info": {
     "project_number": "398250140167",
     "project_id": "users-authentiation",
-    "storage_bucket": "users-authentiation.appspot.com"
+    "storage_bucket": "users-authentiation.firebasestorage.app"
   },
   "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398250140167:android:793ce5d1eb8ac3182bc0a2",
+        "android_client_info": {
+          "package_name": "com.example.pay_ready"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZZQCcy27pjqLkrdRGmnrJLG6vqBRjs0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:398250140167:android:0e1f1373f6147cf12bc0a2",
