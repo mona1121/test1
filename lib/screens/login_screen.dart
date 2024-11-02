@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:test1/screens/signup_screen.dart';
+import 'package:pay_ready/screens/signup_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:test1/firebase_auth_implementation/firebase_auth_services.dart';
+import 'package:pay_ready/firebase_auth_implementation/firebase_auth_services.dart';
 import '../widgets/custom_scaffold.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:test1/screens/home_screen.dart';
+import 'package:pay_ready/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

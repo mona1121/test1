@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For limiting input to digits
-import 'package:test1/widgets/custom_scaffold.dart'; // Assuming this exists for consistent page layout
+import 'package:pay_ready/widgets/custom_scaffold.dart'; // Assuming this exists for consistent page layout
 
 class VerificationScreen extends StatefulWidget {
   final String phoneNumber;

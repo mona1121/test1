@@ -37,11 +37,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
           productData = querySnapshot.docs.first.data();
           showPopup = true; // Show the popup after fetching product data
         });
+
+        // Navigate to Product Identification screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductIdentificationScreen(productData: productData!),
+          ),
+        );
       } else {
         setState(() {
           productData = null; // No product found
           showPopup = false; // Hide the popup
         });
+        // Show a message if no product found
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No product found')),
+        );
       }
     } catch (e) {
       print('Error: $e');
@@ -58,6 +70,41 @@ class _ScannerScreenState extends State<ScannerScreen> {
       showPopup = false; // Hide the popup when starting a new scan
       isScanning = false; // Reset scanning state
     });
+  }
+
+  // Function to manually enter a barcode
+  void _showManualBarcodeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Enter Barcode Manually'),
+          content: TextField(
+            controller: _codeController,
+            decoration: const InputDecoration(hintText: 'Enter barcode'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final code = _codeController.text.trim();
+                if (code.isNotEmpty) {
+                  Navigator.pop(context); // Close the dialog
+                  searchProduct(code); // Search product using the typed code
+                }
+              },
+              child: const Text('Search'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -162,6 +209,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 ),
               ),
             ),
+
+          // Manual barcode entry button (small circular button)
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: _showManualBarcodeDialog,
+              child: const Icon(Icons.keyboard),
+              backgroundColor: Colors.blueAccent,
+              mini: true, // Make the button smaller
+            ),
+          ),
         ],
       ),
     );

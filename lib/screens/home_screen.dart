@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test1/screens/cart_screen.dart';
+import 'package:pay_ready/screens/cart_screen.dart';
 import '../widgets/custom_scaffold.dart';
 import '../components/navigation_bar.dart';
 import 'history_transactions.dart';

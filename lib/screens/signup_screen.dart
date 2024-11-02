@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:test1/firebase_auth_implementation/firebase_auth_services.dart';
-import 'package:test1/screens/login_screen.dart';
-import 'package:test1/screens/verification_screen.dart';
-import 'package:test1/widgets/custom_scaffold.dart';
+import 'package:pay_ready/firebase_auth_implementation/firebase_auth_services.dart';
+import 'package:pay_ready/screens/login_screen.dart';
+import 'package:pay_ready/screens/verification_screen.dart';
+import 'package:pay_ready/widgets/custom_scaffold.dart';
 import 'home_screen.dart';
 
 class SignupScreen extends StatefulWidget {
