@@ -11,7 +11,7 @@ from typing import List
 app = FastAPI()
 
 # Firebase Initialization
-cred = credentials.Certificate('path/to/your/credentials.json')
+cred = credentials.Certificate('/Users/monaa/users-authentiation-firebase-adminsdk.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
