@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'cart_screen.dart';
+import 'package:http/http.dart' as http;
 
 class ProductIdentificationScreen extends StatelessWidget {
   final Map<String, dynamic> productData;
@@ -105,7 +106,7 @@ class ProductIdentificationScreen extends StatelessWidget {
   // Method to fetch recommendations from FastAPI
   Future<List<dynamic>> _fetchRecommendations(String code) async {
     final response = await http.get(
-      Uri.parse('<your-render-url>/recommendations?code=$code'), // Replace with your FastAPI URL
+      Uri.parse('https://pay-ready.onrender.com/recommendations?code=$code'), // Replace with your FastAPI URL
     );
 
     if (response.statusCode == 200) {
