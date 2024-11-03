@@ -9,6 +9,9 @@ uvicorn = "*"
 firebase-admin = "*"
 pandas = "*"
 scikit-learn = "*"
+numpy = "*"
+pydantic = "*"
+aiocache = "*"
 
 [dev-packages]
 

@@ -15,6 +15,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import jaccard_score
 from typing import List
+from aiocache import cached
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -70,9 +71,9 @@ def get_recommendations(code, similarity_matrix, df, top_n=3):
 
         # Fetch product details of recommendations
         recommended_products = df[df['code'].isin(top_recommendations)]
-        return recommended_products[['code', 'product', 'type', 'company', 'category']]
+        return recommended_products[['code', 'product', 'type', 'company', 'category','image']]
     except IndexError:
-        return pd.DataFrame(columns=['code', 'product', 'type', 'company', 'category'])
+        return pd.DataFrame(columns=['code', 'product', 'type', 'company', 'category','image'])
 
 # Define a Pydantic model for the response
 class Recommendation(BaseModel):
@@ -81,9 +82,11 @@ class Recommendation(BaseModel):
     type: str
     company: str
     category: str
+    image: str
 
 # API endpoint to get recommendations
 @app.get('/recommendations/{code}', response_model=List[Recommendation])
+@cached(ttl=300)  # Cache for 5 minutes (300 seconds)
 async def recommend(code: str):
     logging.info(f"Received request for recommendations with code: {code}")
 #    try:
@@ -95,7 +98,7 @@ async def recommend(code: str):
     for doc in docs:
         data_list.append(doc.to_dict())
 
-    data = pd.DataFrame(data_list, columns=['code', 'product', 'description', 'company', 'category', 'type'])
+    data = pd.DataFrame(data_list, columns=['code', 'product', 'description', 'company', 'category', 'type','image'])
 
     # First, prepare the categorical features
     categorical_columns = ['type', 'company', 'category']
