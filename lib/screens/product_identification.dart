@@ -103,10 +103,10 @@ class ProductIdentificationScreen extends StatelessWidget {
     );
   }
 
-  // Method to fetch recommendations from FastAPI
+// Method to fetch recommendations from FastAPI
   Future<List<dynamic>> _fetchRecommendations(String code) async {
     final response = await http.get(
-      Uri.parse('https://pay-ready.onrender.com/recommendations?code=$code'), // Replace with your FastAPI URL
+      Uri.parse('https://pay-ready.onrender.com/recommendations/$code'), // FastAPI URL with path parameter
     );
 
     if (response.statusCode == 200) {
