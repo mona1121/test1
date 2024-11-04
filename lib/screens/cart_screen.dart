@@ -1,47 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-// Model for CartItem
-class CartItem {
-  final String id;
-  final String name;
-  final double price;
-  int quantity;
-  final String description;
-  final String image;
-
-  CartItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.quantity,
-    required this.description,
-    required this.image,
-  });
-
-  factory CartItem.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    return CartItem(
-      id: doc.id,
-      name: data['name'],
-      price: data['price'].toDouble(),
-      quantity: data['quantity'],
-      description: data['description'],
-      image: data['image'],
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'price': price,
-        'quantity': quantity,
-        'description': description,
-        'image': image,
-      };
-}
+import 'package:pay_ready/screens/scanner_screen.dart';
+import 'invoice.dart'; // Import your invoice screen
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({super.key});
+  const CartScreen({Key? key}) : super(key: key);
 
   @override
   _CartScreenState createState() => _CartScreenState();
@@ -50,42 +13,50 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   double _totalPrice = 0.0;
 
-  void _updateQuantity(CartItem item, int change) {
-    final newQuantity = item.quantity + change;
-    if (newQuantity > 0) {
-      FirebaseFirestore.instance.collection('cartItems').doc(item.id).update({
-        'quantity': newQuantity,
-      });
-    } else {
-      FirebaseFirestore.instance.collection('cartItems').doc(item.id).delete();
-    }
-  }
-
-  double _calculateTotalPrice(List<CartItem> items) {
-    return items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-  }
-
-  void _onPaymentButtonPressed() {
-    // Handle payment logic here
-    print("Payment button pressed!");
+  // Helper method to calculate the total price
+  double _calculateTotalPrice(List<DocumentSnapshot> items) {
+    return items.fold(
+      0.0,
+      (sum, item) {
+        final price = double.tryParse(item['price'].toString()) ?? 0.0;
+        final quantity = int.tryParse(item['qty'].toString()) ?? 1;
+        return sum + (price * quantity);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0, // Set elevation to 0 to remove shadow
+        shadowColor: Colors.transparent, // Optional: Set shadow color to transparent
         title: const Text(
           'Cart',
           style: TextStyle(
-            fontFamily: 'LeagueSpartan',
-            fontSize: 24.0, // Adjusted font size for AppBar
-            fontWeight: FontWeight.w600,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
+        iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ScannerScreen()),
+                        );
+            },
+          ),
+        ],
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance.collection('cartItems').snapshots(),
+
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('cart').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
@@ -93,10 +64,7 @@ class _CartScreenState extends State<CartScreen> {
             );
           }
 
-          final items = snapshot.data!.docs
-              .map((doc) => CartItem.fromFirestore(doc))
-              .toList();
-
+          final items = snapshot.data!.docs;
           _totalPrice = _calculateTotalPrice(items);
 
           return Column(
@@ -106,65 +74,32 @@ class _CartScreenState extends State<CartScreen> {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final item = items[index];
+                    final price = double.tryParse(item['price'].toString()) ?? 0.0;
+
                     return ListTile(
                       contentPadding: const EdgeInsets.all(16.0),
                       leading: Image.network(
-                        item.image,
+                        item['image'] ?? '',
                         width: 100,
                         height: 100,
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        item.name,
+                        item['product'] ?? '',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Price: \$${item.price.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    _updateQuantity(item, -1);
-                                  },
-                                ),
-                                Text(
-                                  '${item.quantity}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    _updateQuantity(item, 1);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      subtitle: Text(
+                        'Price: SAR ${price.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 16),
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
                           FirebaseFirestore.instance
-                              .collection('cartItems')
+                              .collection('cart')
                               .doc(item.id)
                               .delete();
                         },
@@ -179,36 +114,30 @@ class _CartScreenState extends State<CartScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Total Price: \$${_totalPrice.toStringAsFixed(2)}',
+                      'Total Price: SAR ${_totalPrice.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: _onPaymentButtonPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        minimumSize:
-                            const Size(150, 50), // Set the minimum size
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                      ),
-                      child: const Text(
-                        'Pay Now',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black,
                     ),
-                  ],
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_forward, color: Colors.white),
+                      onPressed: () {
+                        // Navigate to the invoice screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const InvoiceScreen()),
+                        );
+                      },
+                    ),
+                  ),
+
+                  ]
                 ),
               ),
             ],
