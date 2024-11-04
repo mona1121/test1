@@ -71,9 +71,9 @@ def get_recommendations(code, similarity_matrix, df, top_n=3):
 
         # Fetch product details of recommendations
         recommended_products = df[df['code'].isin(top_recommendations)]
-        return recommended_products[['code', 'product', 'type', 'company', 'category','image']]
+        return recommended_products[['code', 'product', 'type', 'company', 'category', 'image', 'price']]
     except IndexError:
-        return pd.DataFrame(columns=['code', 'product', 'type', 'company', 'category','image'])
+        return pd.DataFrame(columns=['code', 'product', 'type', 'company', 'category', 'image', 'price'])
 
 # Define a Pydantic model for the response
 class Recommendation(BaseModel):
@@ -83,6 +83,7 @@ class Recommendation(BaseModel):
     company: str
     category: str
     image: str
+    price: float
 
 # API endpoint to get recommendations
 @app.get('/recommendations/{code}', response_model=List[Recommendation])
@@ -98,7 +99,7 @@ async def recommend(code: str):
     for doc in docs:
         data_list.append(doc.to_dict())
 
-    data = pd.DataFrame(data_list, columns=['code', 'product', 'description', 'company', 'category', 'type','image'])
+    data = pd.DataFrame(data_list, columns=['code', 'product', 'description', 'company', 'category', 'type','image', 'price'])
 
     # First, prepare the categorical features
     categorical_columns = ['type', 'company', 'category']
@@ -124,3 +125,4 @@ async def recommend(code: str):
 #     except Exception as e:
 #         logging.error(f"Error occurred: {str(e)}")
 #         raise HTTPException(status_code=500, detail=str(e))
+

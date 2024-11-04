@@ -13,7 +13,9 @@ class ProductIdentificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Product Identification'),
       ),
       body: SingleChildScrollView(
@@ -22,36 +24,89 @@ class ProductIdentificationScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product image
+              // Centered and scaled-down product image
               if (productData['image'] != null)
-                Image.network(productData['image'], fit: BoxFit.cover)
+                Center(
+                  child: Image.network(
+                    productData['image'],
+                    fit: BoxFit.contain,
+                    height: 200, // Adjust height for scaling without cropping
+                  ),
+                )
               else
-                const Text('No image available', style: TextStyle(color: Colors.red)),
+                const Center(
+                  child: Text(
+                    'No image available',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
 
               const SizedBox(height: 20),
 
-              // Product details
-              Text('Product: ${productData['product']}', style: _textStyle()),
-              Text('Brand: ${productData['company']}', style: _textStyle()),
-              Text('Price: \$${productData['price']}', style: _textStyle()),
-              Text('Description: ${productData['description']}', style: _textStyle()),
+              // Product information display
+              Text(
+                productData['product'] ?? '',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                productData['company'] ?? '',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Text(
+                productData['description'] ?? '',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Price in SAR, bold and aligned to the right
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'SAR ${productData['price'] ?? ''}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 30),
 
               // Add to Cart Button
               Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await _addToCart();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CartScreen()),
-                    );
-                  },
-                  child: const Text('Add to Cart'),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black, // Button background color
+                  foregroundColor: Colors.white, // Button text color
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
+                onPressed: () async {
+                  await _addToCart();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                  );
+                },
+                child: const Text('Add to Cart'),
               ),
-
+            ),
               const SizedBox(height: 30),
 
               // Recommendations Section
@@ -146,7 +201,10 @@ class ProductIdentificationScreen extends StatelessWidget {
                     color: Colors.grey[200],
                   ),
                   child: recommendedProduct['image'] != null
-                      ? Image.network(recommendedProduct['image'], fit: BoxFit.cover)
+                      ? Image.network(
+                          recommendedProduct['image'],
+                          fit: BoxFit.contain, // Scale down without cropping
+                        )
                       : const Icon(Icons.image_not_supported, size: 50),
                 ),
                 const SizedBox(height: 5),
@@ -156,7 +214,7 @@ class ProductIdentificationScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '\$${recommendedProduct['price']}',
+                  'SAR ${recommendedProduct['price']}',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
