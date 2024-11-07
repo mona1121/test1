@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.test1" // Ensure this matches your application ID
+    namespace = "com.example.pay_ready" // Ensure this matches your application ID
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -45,4 +45,7 @@ dependencies {
 
     // Firebase dependencies
     implementation("com.google.firebase:firebase-analytics")
+     implementation("com.google.firebase:firebase-auth") // for Firebase Auth
+    implementation("com.google.android.gms:play-services-auth:20.5.0") //  for Google Sign-In
+
 }

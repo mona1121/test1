@@ -43,16 +43,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            
 
             // Empty placeholder container
-            Container(
-              width: double.infinity,
-              height: 200,
-              color: Colors.black,
-            ),
+             Container(
+               width: double.infinity,
+               height: 200,
+               color: Colors.white,
+             ),
 
-            const SizedBox(height: 20),
+            
 
             // Last Transaction Section
             Expanded(
