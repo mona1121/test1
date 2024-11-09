@@ -16,16 +16,28 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formLoginKey = GlobalKey<FormState>();
   bool rememberPassword = true;
-
   final FirebaseAuthService _auth = FirebaseAuthService();
-
-  // Declare controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+   // _checkIfUserIsLoggedIn();
+  }
+
+  // Future<void> _checkIfUserIsLoggedIn() async {
+  //   User? user = FirebaseAuth.instance.currentUser;
+  //   if (user != null) {
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => const HomeScreen()),
+  //     );
+  //   }
+  // }
+
+  @override
   void dispose() {
-    // Dispose of controllers to prevent memory leaks
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -38,9 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           const Expanded(
             flex: 1,
-            child: SizedBox(
-              height: 10,
-            ),
+            child: SizedBox(height: 10),
           ),
           Expanded(
             flex: 7,
@@ -73,28 +83,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 20),
                         TextFormField(
                           controller: _emailController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter Email';
-                            }
-                            return null;
-                          },
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Please enter Email'
+                              : null,
                           decoration: InputDecoration(
                             label: const Text('Email'),
                             hintText: 'Enter Email',
-                            hintStyle: const TextStyle(
-                              color: Colors.black26,
-                            ),
+                            hintStyle: const TextStyle(color: Colors.black26),
                             border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.black12,
-                              ),
+                              borderSide: const BorderSide(color: Colors.black12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.black12,
-                              ),
+                              borderSide: const BorderSide(color: Colors.black12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -104,22 +105,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _passwordController,
                           obscureText: true,
                           obscuringCharacter: '*',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter Password';
-                            }
-                            return null;
-                          },
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Please enter Password'
+                              : null,
                           decoration: InputDecoration(
                             label: const Text('Password'),
                             hintText: 'Enter Password',
-                            hintStyle: const TextStyle(
-                              color: Colors.black26,
-                            ),
+                            hintStyle: const TextStyle(color: Colors.black26),
                             border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.black12,
-                              ),
+                              borderSide: const BorderSide(color: Colors.black12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -141,16 +135,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 const Text(
                                   'Remember me',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
+                                  style: TextStyle(color: Colors.grey),
                                 ),
                               ],
                             ),
                             GestureDetector(
-                              onTap: () {
-                                // Handle "Forget Password?" click
-                              },
+                              onTap: () => _forgotPassword(context), // Call the reset function here
                               child: const Text(
                                 'Forget Password?',
                                 style: TextStyle(
@@ -158,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: Colors.black,
                                 ),
                               ),
-                            ),
+                            ),                          
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -166,9 +156,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () async {
-                              print("Log in button pressed");
                               if (_formLoginKey.currentState!.validate()) {
-                                await _logIn(); // Call the _logIn function
+                                await _logIn();
                               }
                             },
                             child: const Text('Log in'),
@@ -186,14 +175,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(
-                                vertical: 0,
-                                horizontal: 10,
-                              ),
+                                  vertical: 0, horizontal: 10),
                               child: Text(
                                 'Sign up with',
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                ),
+                                style: TextStyle(color: Colors.black45),
                               ),
                             ),
                             Expanded(
@@ -218,11 +203,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             IconButton(
                               icon: const FaIcon(FontAwesomeIcons.google),
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const FaIcon(FontAwesomeIcons.apple),
-                              onPressed: () {},
+                              onPressed: () async {
+                                User? user = await _auth.signInWithGoogle();
+                                if (user != null) {
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const HomeScreen()),
+                                    (Route<dynamic> route) => false,
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text("Google sign-in failed")),
+                                  );
+                                }
+                              },
                             ),
                           ],
                         ),
@@ -232,17 +228,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             const Text(
                               'Don\'t have an account?',
-                              style: TextStyle(
-                                color: Colors.black45,
-                              ),
+                              style: TextStyle(color: Colors.black45),
                             ),
                             GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const SignupScreen(),
-                                  ),
+                                      builder: (context) =>
+                                          const SignupScreen()),
                                 );
                               },
                               child: const Text(
@@ -268,41 +262,71 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Define the _logIn method to handle login
-// Define the _logIn method to handle login
   Future<void> _logIn() async {
     if (_formLoginKey.currentState!.validate()) {
       try {
-        // Attempt to log in the user with email and password
         User? user = await _auth.logInWithEmailAndPassword(
           _emailController.text,
           _passwordController.text,
         );
 
         if (user != null) {
-          // Login successful, navigate to HomeScreen
-          print("User is successfully logged in");
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
           );
         } else {
-          // Handle the case where user is null
-          print("Login failed: No user returned");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Login failed: Invalid credentials")),
           );
         }
       } catch (e) {
-        // Handle login errors
-        print("Error during login: $e");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Login failed: ${e.toString()}")),
         );
       }
     }
   }
+
+  void _forgotPassword(BuildContext context) async {
+  String? email = await showDialog(
+    context: context,
+    builder: (context) {
+      String tempEmail = "";
+      return AlertDialog(
+        title: const Text("Reset Password"),
+        content: TextField(
+          onChanged: (value) => tempEmail = value,
+          decoration: const InputDecoration(
+            hintText: "Enter your email",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, tempEmail),
+            child: const Text("Submit"),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (email != null && email.isNotEmpty) {
+    try {
+      await _auth.sendPasswordResetEmail(email);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Password reset email sent")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+  }
 }
 
+}

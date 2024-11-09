@@ -90,23 +90,25 @@ class ProductIdentificationScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               // Add to Cart Button
-              Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // Button background color
-                  foregroundColor: Colors.white, // Button text color
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                 Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black, // Button background color
+                    foregroundColor: Colors.white, // Button text color
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  onPressed: () async {
+                    // Pass the productData to add to the cart
+                    await _addToCart(productData);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                    );
+                  },
+                  child: const Text('Add to Cart'),
                 ),
-                onPressed: () async {
-                  await _addToCart();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CartScreen()),
-                  );
-                },
-                child: const Text('Add to Cart'),
               ),
-            ),
+              
               const SizedBox(height: 30),
 
               // Recommendations Section
@@ -131,10 +133,27 @@ class ProductIdentificationScreen extends StatelessWidget {
   }
 
   // Add to Cart function
-  Future<void> _addToCart() async {
-    final cartCollection = FirebaseFirestore.instance.collection('cart');
-    await cartCollection.add(productData);
+Future<void> _addToCart(Map<String, dynamic> product) async {
+  final cartRef = FirebaseFirestore.instance.collection('cart');
+
+  // Get the product's document reference
+  final doc = await cartRef.doc(product['id']).get(); // Ensure product['id'] is available
+
+  if (doc.exists) {
+    // If the product is already in the cart, just update the quantity
+    await cartRef.doc(product['id']).update({
+      'quantity': FieldValue.increment(1), // Increment quantity
+    });
+  } else {
+    // If not in the cart, add it with quantity 1
+    await cartRef.doc(product['id']).set({
+      'image': product['image'],
+      'product': product['product'],
+      'price': product['price'],
+      'quantity': 1, // Start with quantity 1
+    });
   }
+}
 
   // Method to build the recommendations section
   Widget _buildRecommendations() {
