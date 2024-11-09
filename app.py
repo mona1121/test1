@@ -24,12 +24,19 @@ logging.basicConfig(level=logging.INFO)
 app = FastAPI()
 
 # Firebase Initialization
-firebase_credentials_json = os.getenv('FIREBASE_CREDENTIALS')
-if firebase_credentials_json:
-    cred = credentials.Certificate(json.loads(firebase_credentials_json))
-    firebase_admin.initialize_app(cred)
+# firebase_credentials_json = os.getenv('FIREBASE_CREDENTIALS')
+# if firebase_credentials_json:
+#     cred = credentials.Certificate(json.loads(firebase_credentials_json))
+#     firebase_admin.initialize_app(cred)
+# else:
+#     raise ValueError("Firebase credentials not found in environment variables.")
+
+firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS")
+
+if firebase_credentials_path:
+    cred = credentials.Certificate(firebase_credentials_path)
 else:
-    raise ValueError("Firebase credentials not found in environment variables.")
+    raise ValueError("Firebase credentials path not found in environment variables.")
 
 # Initialize Firestore client
 db = firestore.client()
@@ -124,3 +131,43 @@ async def recommend(code: str):
 #         logging.error(f"Error occurred: {str(e)}")
 #         raise HTTPException(status_code=500, detail=str(e))
 
+
+
+
+# Define the PaymentRequest Pydantic model
+class PaymentRequest(BaseModel):
+    amount: float
+    currency: str
+    description: str
+    customer: dict
+    redirect_url: str
+
+    # Add Tap Payment API endpoint
+@app.post("/create_payment/")
+async def create_payment(payment: PaymentRequest):
+    url = "https://api.tap.company/v2/charges/"
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "Authorization": "Bearer sk_test_AiEpUqHlcPgj28msDFIvRK7G"
+    }
+    payload = {
+        "amount": payment.amount,
+        "currency": payment.currency,
+        "threeDSecure": True,
+        "description": payment.description,
+        "customer": payment.customer,
+        "source": {"id": "src_all"},
+        "redirect": {"url": payment.redirect_url}
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()  # Raise exception if the request fails
+        return response.json()
+    except requests.exceptions.HTTPError as e:
+        logging.error(f"HTTP error occurred: {e}")
+        raise HTTPException(status_code=response.status_code, detail=response.json())
+    except Exception as e:
+        logging.error(f"Error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
