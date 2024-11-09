@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pay_ready/firebase_auth_implementation/firebase_auth_services.dart';
+import 'package:pay_ready/screens/home_screen.dart';
 import 'package:pay_ready/screens/login_screen.dart';
 import 'package:pay_ready/screens/verification_screen.dart';
 import 'package:pay_ready/widgets/custom_scaffold.dart';
-import 'home_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -16,10 +17,8 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final FirebaseAuthService _auth = FirebaseAuthService();
-
   final _formSignupKey = GlobalKey<FormState>();
   bool agreePersonalData = true;
-  String phoneNumber = '';
 
   // Declare controllers
   final TextEditingController _nameController = TextEditingController();
@@ -30,7 +29,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   void dispose() {
-    // Dispose of controllers to prevent memory leaks
     _nameController.dispose();
     _phoneController.dispose();
     _usernameController.dispose();
@@ -74,114 +72,44 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 40.0),
-
-                      // Full Name
-                      TextFormField(
+                      _buildTextField(
                         controller: _nameController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Full name';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          label: const Text('Full Name'),
-                          hintText: 'Enter Full Name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                        label: 'Full Name',
+                        hintText: 'Enter Full Name',
+                        validator: 'Please enter Full name',
                       ),
                       const SizedBox(height: 25.0),
-
-                      // Phone Number
-                      TextFormField(
+                      _buildTextField(
                         controller: _phoneController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Phone Number';
-                          } else if (value.length != 9) {
-                            return 'Enter a valid 9-digit Phone Number';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          setState(() {
-                            phoneNumber = value;
-                          });
-                        },
+                        label: 'Phone Number',
+                        hintText: 'Enter Phone Number',
+                        validator: 'Please enter Phone Number',
+                        prefixText: '+966',
                         keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          label: const Text('Phone Number'),
-                          hintText: 'Enter Phone Number',
-                          prefixText: '+966',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
                       ),
                       const SizedBox(height: 25.0),
-
-                      // Username
-                      TextFormField(
+                      _buildTextField(
                         controller: _usernameController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please Enter Username';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          label: const Text('Username'),
-                          hintText: 'Enter Username',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                        label: 'Username',
+                        hintText: 'Enter Username',
+                        validator: 'Please enter Username',
                       ),
                       const SizedBox(height: 25.0),
-
-                      // Email
-                      TextFormField(
+                      _buildTextField(
                         controller: _emailController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Email';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          label: const Text('Email'),
-                          hintText: 'Enter Email',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                        label: 'Email',
+                        hintText: 'Enter Email',
+                        validator: 'Please enter Email',
                       ),
                       const SizedBox(height: 25.0),
-
-                      // Password
-                      TextFormField(
+                      _buildTextField(
                         controller: _passwordController,
+                        label: 'Password',
+                        hintText: 'Enter Password',
+                        validator: 'Please enter Password',
                         obscureText: true,
-                        obscuringCharacter: '*',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Password';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                          label: const Text('Password'),
-                          hintText: 'Enter Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
                       ),
                       const SizedBox(height: 25.0),
-
-                      // Agree to processing of personal data
                       Row(
                         children: [
                           Checkbox(
@@ -198,70 +126,17 @@ class _SignupScreenState extends State<SignupScreen> {
                         ],
                       ),
                       const SizedBox(height: 25.0),
-
-                      // Sign-up button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _signUp,  // Linking the signup method here
+                          onPressed: _signUp,
                           child: const Text('Sign up'),
                         ),
                       ),
                       const SizedBox(height: 30.0),
-
-                      // Sign-up social media icons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.facebookF),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.twitter),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.google),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.apple),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
+                      _buildSocialIcons(),
                       const SizedBox(height: 25.0),
-
-                      // Already have an account
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Already have an account? ',
-                            style: TextStyle(
-                              color: Colors.black45,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (e) => const LoginScreen(),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              'Log in',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildAlreadyHaveAccount(),
                       const SizedBox(height: 20.0),
                     ],
                   ),
@@ -274,25 +149,116 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  void _signUp() async {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    required String validator,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? prefixText,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return validator;
+        }
+        return null;
+      },
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        label: Text(label),
+        hintText: hintText,
+        prefixText: prefixText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialIcons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: const [
+        IconButton(
+          icon: FaIcon(FontAwesomeIcons.facebookF),
+          onPressed: null,
+        ),
+        IconButton(
+          icon: FaIcon(FontAwesomeIcons.twitter),
+          onPressed: null,
+        ),
+        IconButton(
+          icon: FaIcon(FontAwesomeIcons.google),
+          onPressed: null,
+        ),
+        IconButton(
+          icon: FaIcon(FontAwesomeIcons.apple),
+          onPressed: null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlreadyHaveAccount() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'Already have an account? ',
+          style: TextStyle(color: Colors.black45),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LoginScreen(),
+              ),
+            );
+          },
+          child: const Text(
+            'Log in',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _signUp() async {
     if (_formSignupKey.currentState!.validate() && agreePersonalData) {
       try {
-        // Signing up the user with email and password
+        // Sign up user and get the Firebase User
         User? user = await _auth.signUpWithEmailAndPassword(
           _emailController.text,
           _passwordController.text,
         );
 
         if (user != null) {
-          print("User is successfully created");
+          // Add user details to Firestore
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+            'name': _nameController.text,
+            'phone': _phoneController.text,
+            'username': _usernameController.text,
+            'email': user.email,
+            'points': 0,  // Initialize reward points
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+          // Navigate to the VerificationScreen
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const HomeScreen(),
             ),
           );
-        } else {
-          print("Sign-up failed: No user returned");
         }
       } catch (e) {
         print("Error during sign-up: $e");
@@ -307,3 +273,4 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 }
+

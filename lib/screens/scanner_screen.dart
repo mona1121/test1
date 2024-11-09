@@ -112,6 +112,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Search'),
+        backgroundColor: Colors.white,
       ),
       body: Stack(
         children: [
