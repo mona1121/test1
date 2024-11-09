@@ -19,13 +19,19 @@ logging.basicConfig(level=logging.INFO)
 # Initialize FastAPI application
 app = FastAPI()
 
-# Firebase Initialization
-firebase_credentials_path = os.getenv('FIREBASE_CREDENTIALS')
-if firebase_credentials_path:
-    cred = credentials.Certificate(firebase_credentials_path)
+# Read JSON content from the FIREBASE_CREDENTIALS environment variable
+firebase_credentials_json = os.getenv("FIREBASE_CREDENTIALS")
+
+if firebase_credentials_json:
+    # Write the JSON content to a temporary file
+    with open("/tmp/firebase_credentials.json", "w") as f:
+        f.write(firebase_credentials_json)
+
+    # Initialize Firebase using the file path
+    cred = credentials.Certificate("/tmp/firebase_credentials.json")
     initialize_app(cred)
 else:
-    raise ValueError("Firebase credentials not found in environment variables.")
+    raise ValueError("Firebase credentials JSON not found in environment variables.")
 
 # Initialize Firestore client
 db = firestore.client()
