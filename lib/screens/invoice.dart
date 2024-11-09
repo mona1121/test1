@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:pay_ready/screens/CardViewScreen.dart';// Corrected import
+import 'package:pay_ready/widgets/payButton.dart';
+import 'tap_payment_service.dart';
 
 class InvoiceScreen extends StatelessWidget {
   final List<dynamic> items;
+  final TapPaymentService _paymentService = TapPaymentService();
 
-  const InvoiceScreen({Key? key, required this.items}) : super(key: key);
+  InvoiceScreen({Key? key, required this.items}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,32 +47,10 @@ class InvoiceScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const Spacer(),
-            PayButton(dictionaryMap: {
-              "operator": {
-                "publicKey": "pk_test_YhUjg9PNT8oDlKJ1aE2fMRz7",
-              },
-              "scope": "Token",
-              "purpose": "Charge",
-              "order": {
-                "id": "order123",
-                "amount": totalAmount,
-                "currency": "SAR",
-                "description": "Invoice payment",
-                "reference": "INV001",
-              },
-              "customer": {
-                "id": "",
-                "name": [
-                  {"lang": "en", "first": "TAP", "middle": "", "last": "PAYMENTS"}
-                ],
-                "nameOnCard": "TAP PAYMENTS",
-                "editable": true,
-                "contact": {
-                  "email": "tap@tap.company",
-                  "phone": {"countryCode": "+965", "number": "88888888"}
-                }
-              }
-            }),
+            PayButton(
+              paymentService: _paymentService,
+              totalAmount: totalAmount,
+            ),
           ],
         ),
       ),
@@ -124,7 +104,6 @@ class InvoiceItemsTable extends StatelessWidget {
             ],
           ),
           ...items.map((item) {
-            final quantity = item['qty'] ?? 1;
             return TableRow(
               children: [
                 Padding(
@@ -133,7 +112,7 @@ class InvoiceItemsTable extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('$quantity'),
+                  child: Text('${item['qty']}'),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -143,44 +122,6 @@ class InvoiceItemsTable extends StatelessWidget {
             );
           }).toList(),
         ],
-      ),
-    );
-  }
-}
-
-class PayButton extends StatelessWidget {
-  final Map<String, dynamic> dictionaryMap;
-
-  const PayButton({Key? key, required this.dictionaryMap}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-         onPressed: () {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => CardViewScreen(dictionaryMap: dictionaryMap),
-        //     ),
-        //   );
-         },
-        child: const Text(
-          'Pay',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
     );
   }
