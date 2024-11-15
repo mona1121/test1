@@ -155,73 +155,68 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              if (_formLoginKey.currentState!.validate()) {
-                                await _logIn();
-                              }
-                            },
-                            child: const Text('Log in'),
+                          onPressed: () async {
+                            if (_formLoginKey.currentState!.validate()) {
+                              await _logIn();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white, 
+                            side: const BorderSide(color: Colors.black, width: 1), 
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(33), 
+                            ),
                           ),
+                          child: const Text(
+                            'Log in',
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: Colors.black, // Set text color directly
+                            ),
+                            ),
+                        ),
                         ),
                         const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Divider(
-                                thickness: 0.7,
-                                color: Colors.grey.withOpacity(0.5),
+                        
+                        SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black, // Black background
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              onPressed: ()  async {
+                                  User? user = await _auth.signInWithGoogle();
+                                    if (user != null) {
+                                       Navigator.of(context).pushAndRemoveUntil(
+                                         MaterialPageRoute(
+                                           builder: (context) =>
+                                               const HomeScreen()),
+                                              (Route<dynamic> route) => false,
+                                             );
+                                            } else {
+                                             ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                 content: Text("Google sign-in failed")),
+                                             );
+                                           }
+                                         }, // Function to handle Google sign-in
+                              icon: const FaIcon(
+                                FontAwesomeIcons.google, // Google icon (uses colored version if available)
+                                color: Colors.white
+                              ),
+                              label: const Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                  color: Colors.white, // White text
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 10),
-                              child: Text(
-                                'Sign up with',
-                                style: TextStyle(color: Colors.black45),
-                              ),
-                            ),
-                            Expanded(
-                              child: Divider(
-                                thickness: 0.7,
-                                color: Colors.grey.withOpacity(0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              icon: const FaIcon(FontAwesomeIcons.facebookF),
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const FaIcon(FontAwesomeIcons.twitter),
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const FaIcon(FontAwesomeIcons.google),
-                              onPressed: () async {
-                                User? user = await _auth.signInWithGoogle();
-                                if (user != null) {
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const HomeScreen()),
-                                    (Route<dynamic> route) => false,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text("Google sign-in failed")),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
-                        ),
+                          ),
                         const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
