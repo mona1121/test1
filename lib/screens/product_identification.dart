@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'cart_screen.dart';
-import 'package:http/http.dart' as http;
 
 class ProductIdentificationScreen extends StatelessWidget {
   final Map<String, dynamic> productData;
@@ -30,7 +29,7 @@ class ProductIdentificationScreen extends StatelessWidget {
                   child: Image.network(
                     productData['image'],
                     fit: BoxFit.contain,
-                    height: 200, // Adjust height for scaling without cropping
+                    height: 200,
                   ),
                 )
               else
@@ -40,10 +39,8 @@ class ProductIdentificationScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
-
               const SizedBox(height: 20),
-
-              // Product information display
+              // Product name
               Text(
                 productData['product'] ?? '',
                 style: const TextStyle(
@@ -51,9 +48,8 @@ class ProductIdentificationScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 8),
-
+              // Company name
               Text(
                 productData['company'] ?? '',
                 style: const TextStyle(
@@ -61,9 +57,8 @@ class ProductIdentificationScreen extends StatelessWidget {
                   color: Colors.black54,
                 ),
               ),
-
               const SizedBox(height: 12),
-
+              // Product description
               Text(
                 productData['description'] ?? '',
                 style: const TextStyle(
@@ -71,10 +66,8 @@ class ProductIdentificationScreen extends StatelessWidget {
                   color: Colors.grey,
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // Price in SAR, bold and aligned to the right
+              // Price display
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -86,19 +79,16 @@ class ProductIdentificationScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
-              // Add to Cart Button
-                 Center(
+              // Add to Cart button
+              Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black, // Button background color
-                    foregroundColor: Colors.white, // Button text color
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                   onPressed: () async {
-                    // Pass the productData to add to the cart
                     await _addToCart(productData);
                     Navigator.push(
                       context,
@@ -108,16 +98,12 @@ class ProductIdentificationScreen extends StatelessWidget {
                   child: const Text('Add to Cart'),
                 ),
               ),
-              
               const SizedBox(height: 30),
-
-              // Recommendations Section
+              // Recommendations section
               const Text('You may also like:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-
-              // Display recommendations in a horizontal list
               SizedBox(
-                height: 150, // Fixed height for horizontal ListView
+                height: 150,
                 child: _buildRecommendations(),
               ),
             ],
@@ -127,62 +113,46 @@ class ProductIdentificationScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to style text
-  TextStyle _textStyle() {
-    return const TextStyle(fontSize: 16, fontWeight: FontWeight.w500);
+  Future<void> _addToCart( Map<String, dynamic> product) async {
+    final cartCollection = FirebaseFirestore.instance.collection('cart');
+    final existingProduct = await cartCollection.where('id', isEqualTo: productData['id']).limit(1).get();
+
+    if (existingProduct.docs.isNotEmpty) {
+    // If the product exists, increment the quantity
+    final existingDoc = existingProduct.docs.first;
+    cartCollection.doc(existingDoc.id).update({
+      'quantity': FieldValue.increment(1),
+    });
+    } else {
+      await cartCollection.doc(product['code']).set({
+        'image': product['image'],
+        'product': product['product'],
+        'price': product['price'],
+        'quantity': 1,
+      });
+    }
   }
 
-  // Add to Cart function
-Future<void> _addToCart(Map<String, dynamic> product) async {
-  final cartRef = FirebaseFirestore.instance.collection('cart');
-
-  // Get the product's document reference
-  final doc = await cartRef.doc(product['id']).get(); // Ensure product['id'] is available
-
-  if (doc.exists) {
-    // If the product is already in the cart, just update the quantity
-    await cartRef.doc(product['id']).update({
-      'quantity': FieldValue.increment(1), // Increment quantity
-    });
-  } else {
-    // If not in the cart, add it with quantity 1
-    await cartRef.doc(product['id']).set({
-      'image': product['image'],
-      'product': product['product'],
-      'price': product['price'],
-      'quantity': 1, // Start with quantity 1
-    });
-  }
-}
-
-  // Method to build the recommendations section
   Widget _buildRecommendations() {
     return FutureBuilder<List<dynamic>>(
-      future: _fetchRecommendations(productData['code']), // Pass the product code to fetch recommendations
+      future: _fetchRecommendations(productData['code']),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
         if (snapshot.hasError) {
           return const Text('Error fetching recommendations.');
         }
-
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Text('No recommendations available.');
         }
-
         return _buildHorizontalList(snapshot.data!);
       },
     );
   }
 
-// Method to fetch recommendations from FastAPI
   Future<List<dynamic>> _fetchRecommendations(String code) async {
-    final response = await http.get(
-      Uri.parse('https://pay-ready.onrender.com/recommendations/$code'), // FastAPI URL with path parameter
-    );
-
+    final response = await http.get(Uri.parse('https://pay-ready.onrender.com/recommendations/$code'));
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -190,14 +160,12 @@ Future<void> _addToCart(Map<String, dynamic> product) async {
     }
   }
 
-  // Helper method to build a horizontal list of recommendations
   Widget _buildHorizontalList(List<dynamic> recommendations) {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: recommendations.length,
       itemBuilder: (context, index) {
         final recommendedProduct = recommendations[index];
-
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -210,7 +178,6 @@ Future<void> _addToCart(Map<String, dynamic> product) async {
           child: Padding(
             padding: const EdgeInsets.only(right: 10.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 100,
@@ -222,7 +189,7 @@ Future<void> _addToCart(Map<String, dynamic> product) async {
                   child: recommendedProduct['image'] != null
                       ? Image.network(
                           recommendedProduct['image'],
-                          fit: BoxFit.contain, // Scale down without cropping
+                          fit: BoxFit.contain,
                         )
                       : const Icon(Icons.image_not_supported, size: 50),
                 ),

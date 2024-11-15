@@ -23,13 +23,17 @@ class CustomNavBar extends StatelessWidget {
           // Home Button
           IconButton(
             icon: const Icon(Icons.home),
+            color: Colors.black,
             onPressed: () => onHomeTap(),
           ),
           // Scan Button Placeholder
           const SizedBox(width: 40), 
           // Cart Button
           IconButton(
-            icon: const Icon(Icons.shopping_cart),
+            icon: const Icon(
+              Icons.shopping_cart, 
+              color: Colors.black,
+              ),
             onPressed: () => onCartTap(),
           ),
         ],

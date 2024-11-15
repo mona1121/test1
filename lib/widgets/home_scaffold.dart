@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class CustomScaffold extends StatelessWidget {
+class HomeScaffold extends StatelessWidget {
   final Widget? child;
   final List<PopupMenuEntry<String>>? menuItems; // Accepts menu items as a parameter
   final Function(String)? onMenuItemSelected; // Callback for menu item selection
 
-  const CustomScaffold({
+  const HomeScaffold({
     super.key,
     this.child,
     this.menuItems,
@@ -36,13 +36,13 @@ class CustomScaffold extends StatelessWidget {
       body: Stack(
         children: [
           Image.asset(
-            'assets/images/start.png',
+            'assets/images/start2.png',
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
           ),
           SafeArea(
-            child: child!,
+            child: child ?? Container(),
           ),
         ],
       ),

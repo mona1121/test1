@@ -1,67 +1,64 @@
-// payment.dart
 import 'package:flutter/material.dart';
-import "CardViewScreen.dart";
+import '../screens/tap_payment_service.dart';
+import '../screens/ThankYou_screen.dart';
 
-class PaymentScreen extends StatefulWidget {
-  final Map<String, dynamic> dictionaryMap;
+class PayButton extends StatelessWidget {
+  final TapPaymentService paymentService;
+  final double totalAmount;
 
-  const PaymentScreen({Key? key, required this.dictionaryMap}) : super(key: key);
-
-  @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
-}
-
-class _PaymentScreenState extends State<PaymentScreen> {
-  String? paymentStatus = "Initiating Payment...";
-
-  void _startCardViewScreen() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CardViewScreen(),
-      ),
-    );
-
-    setState(() {
-      paymentStatus = result ?? "No response from CardViewScreen";
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Directly start CardViewScreen when PaymentScreen opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startCardViewScreen();
-    });
-  }
+  const PayButton({Key? key, required this.paymentService, required this.totalAmount}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Payment"),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                paymentStatus ?? "Processing...",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _startCardViewScreen,
-                child: const Text("Try Again"),
-              ),
-            ],
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+        onPressed: () async {
+          try {
+            final String currency = "SAR";
+            final String description = "Invoice Payment";
+            final Map<String, dynamic> customer = {
+              "first_name": "test",
+              "last_name": "user",
+              "email": "test@example.com",
+              "phone": {"country_code": "965", "number": "51234567"},
+            };
+            final String redirectUrl = "https://tap-payment-redirect-69z8.vercel.app/api/redirect";
+
+            await paymentService.createCharge(
+              context: context,
+              amount: totalAmount,
+              currency: currency,
+              description: description,
+              customer: customer,
+              redirectUrl: redirectUrl, userId: '',
+            );
+
+            // Navigate to ThankYouScreen on successful payment
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ThankYouScreen()),
+            );
+          } catch (e) {
+            print("Error creating payment: $e");
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Payment failed: $e")),
+            );
+          }
+        },
+        child: const Text(
+          'Pay',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

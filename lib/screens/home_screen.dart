@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pay_ready/screens/cart_screen.dart';
-import '../widgets/custom_scaffold.dart';
+import '../firebase_auth_implementation/firebase_auth_services.dart';
+import '../widgets/home_scaffold.dart';
 import '../components/navigation_bar.dart';
+import '../widgets/loyalty_card.dart';
 import 'history_transactions.dart';
 import 'scanner_screen.dart';
+import 'edit_profile.dart';
+import 'contactUs.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,10 +17,62 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  @override
+
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
+   Future<void> _handleSignOut() async {
+    await _auth.signOut();
+    Navigator.pushReplacementNamed(context, '/welcome');
+  }
+ 
+ void _onMenuItemSelected(String choice) {
+    switch (choice) {
+      case 'Edit Profile':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EditProfile()),
+        );
+        break;
+      case 'Contact Us':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ContactUs()),
+        );
+        break;
+      case 'Sign Out':
+        _handleSignOut();
+        break;
+    }
+  }
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScaffold(
+      body: HomeScaffold(
+        onMenuItemSelected: _onMenuItemSelected,
+        menuItems: const [
+        PopupMenuItem(
+          value: 'Edit Profile',
+          child: ListTile(
+            leading: Icon(Icons.edit, color: Colors.black),
+            title: Text('Edit Profile'),
+          ),
+        ),
+        PopupMenuItem(
+          value: 'Contact Us',
+          child: ListTile(
+            leading: Icon(Icons.help_outline, color: Colors.black),
+            title: Text('Contact Us'),
+          ),
+        ),
+        PopupMenuItem(
+          value: 'Sign Out',
+          child: ListTile(
+            leading: Icon(Icons.logout, color: Colors.black),
+            title: Text('Sign Out'),
+          ),
+        ),
+      ],
         child: Column(
           children: [
             // Welcome title section
@@ -45,16 +101,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
             
 
-            // Empty placeholder container
-             Container(
-               width: double.infinity,
-               height: 200,
-               color: Colors.white,
-             ),
+            // Loyalty card
+             const LoyaltyCard(),
 
             
 
             // Last Transaction Section
+            
             Expanded(
               child: Container(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),

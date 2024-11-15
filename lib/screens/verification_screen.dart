@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For limiting input to digits
-import 'package:pay_ready/widgets/custom_scaffold.dart'; // Assuming this exists for consistent page layout
-
+import 'package:flutter/services.dart'; 
+import 'package:pay_ready/widgets/custom_scaffold.dart'; 
 class VerificationScreen extends StatefulWidget {
-  final String phoneNumber;
+  final String contactInfo; 
 
-  const VerificationScreen({super.key, required this.phoneNumber});
+ VerificationScreen({super.key, required this.contactInfo});
 
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
@@ -32,6 +31,29 @@ class _VerificationScreenState extends State<VerificationScreen> {
       // Automatically move to the previous field if a digit is deleted
       FocusScope.of(context).previousFocus();
     }
+  }
+
+  void _verifyOtp() {
+    if (_otpKey.currentState!.validate()) {
+      String otp = _otpControllers.map((controller) => controller.text).join(); // Collect OTP from each box
+      if (otp.length == 6) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Verifying OTP...')),
+        );
+        // Add your OTP verification logic here (API call, etc.)
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter the complete OTP')),
+        );
+      }
+    }
+  }
+
+  void _resendOtp() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Resending OTP to your email...')),
+    );
+    // Add your resend OTP logic here (API call, etc.)
   }
 
   @override
@@ -62,7 +84,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // OTP Verification title
                       const Text(
                         'OTP Verification',
                         style: TextStyle(
@@ -71,21 +92,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(
-                        height: 40.0,
-                      ),
-                      // Instruction text
+                      const SizedBox(height: 40.0),
+                      // Updated instructions to refer to email
                       Text(
-                        'Enter the OTP sent to ${widget.phoneNumber}',
+                        'Enter the OTP sent to your email ${widget.contactInfo}',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(
-                        height: 40.0,
-                      ),
+                      const SizedBox(height: 40.0),
                       // OTP input fields
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -105,7 +122,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
                               ],
                               decoration: InputDecoration(
                                 counterText: '', // Hide character counter
-                                
                                 hintStyle: const TextStyle(color: Colors.black26),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -132,40 +148,27 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (_otpKey.currentState!.validate()) {
-                              String otp = _otpControllers
-                                  .map((controller) => controller.text)
-                                  .join(); // Collect OTP from each box
-                              if (otp.length == 6) {
-                                // Process OTP verification
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Verifying OTP...')),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Please enter the complete OTP')),
-                                );
-                              }
-                            }
-                          },
+                          onPressed: _verifyOtp,
                           style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.black, width: 1),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(33),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 15),
                           ),
-                          child: const Text('Verify'),
+                          child: const Text(
+                            'Verify',
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: Colors.black,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 30.0),
                       // Resend OTP link
                       GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Resending OTP...')),
-                          );
-                        },
+                        onTap: _resendOtp,
                         child: const Text(
                           'Resend OTP',
                           style: TextStyle(

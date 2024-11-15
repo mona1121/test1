@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:pay_ready/widgets/payButton.dart';
+import '../firebase_auth_implementation/firebase_auth_services.dart';
 import 'tap_payment_service.dart';
+import 'package:intl/intl.dart';
 
 class InvoiceScreen extends StatelessWidget {
   final List<dynamic> items;
+  final String userId;
   final TapPaymentService _paymentService = TapPaymentService();
 
-  InvoiceScreen({Key? key, required this.items}) : super(key: key);
+  InvoiceScreen({Key? key, required this.items, required this.userId}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
     final double totalAmount = _calculateTotal(items);
+    final String issuedOn = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -30,9 +35,9 @@ class InvoiceScreen extends StatelessWidget {
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Issued on:',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.grey),
+            Text(
+              'Issued on: $issuedOn',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             const SizedBox(height: 40),
             const Text(
@@ -50,6 +55,7 @@ class InvoiceScreen extends StatelessWidget {
             PayButton(
               paymentService: _paymentService,
               totalAmount: totalAmount,
+              userId: userId,
             ),
           ],
         ),
@@ -59,9 +65,9 @@ class InvoiceScreen extends StatelessWidget {
 
   double _calculateTotal(List<dynamic> items) {
     return items.fold(0.0, (sum, item) {
-      final price = double.tryParse(item['price'].toString()) ?? 0.0;
-      final quantity = int.tryParse(item['qty'].toString()) ?? 1;
-      return sum + (price * quantity);
+      final price = (item['price'] is int) ? (item['price'] as int).toDouble() : (item['price'] as double);
+      final quantity = (item['quantity'] is int) ? item['quantity'] as int : (item['quantity'] as double).toInt();
+      return sum + price * quantity;
     });
   }
 }
@@ -112,7 +118,7 @@ class InvoiceItemsTable extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('${item['qty']}'),
+                  child: Text('${item['quantity']}'),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
