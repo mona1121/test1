@@ -5,7 +5,7 @@ import 'tap_payment_service.dart';
 import 'package:intl/intl.dart';
 
 class InvoiceScreen extends StatelessWidget {
-  final List<dynamic> items;
+  final List<Map<String, dynamic>> items; 
   final String userId;
   final TapPaymentService _paymentService = TapPaymentService();
 
@@ -63,13 +63,28 @@ class InvoiceScreen extends StatelessWidget {
     );
   }
 
-  double _calculateTotal(List<dynamic> items) {
-    return items.fold(0.0, (sum, item) {
-      final price = (item['price'] is int) ? (item['price'] as int).toDouble() : (item['price'] as double);
-      final quantity = (item['quantity'] is int) ? item['quantity'] as int : (item['quantity'] as double).toInt();
-      return sum + price * quantity;
-    });
-  }
+ double _calculateTotal(List<Map<String, dynamic>> items) {
+  return items.fold(
+    0.0,
+    (total, item) {
+      double price = 0.0;
+      if (item['price'] is String) {
+        price = double.tryParse(item['price']) ?? 0.0;
+      } else if (item['price'] is int) {
+        price = item['price'].toDouble();
+      } else if (item['price'] is double) {
+        price = item['price'];
+      }
+
+      int quantity = item['quantity'] is int
+          ? item['quantity']
+          : int.tryParse(item['quantity'].toString()) ?? 1;
+
+      return total + price * quantity;
+    },
+  );
+}
+
 }
 
 class InvoiceItemsTable extends StatelessWidget {
@@ -110,23 +125,35 @@ class InvoiceItemsTable extends StatelessWidget {
             ],
           ),
           ...items.map((item) {
-            return TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(item['product'] ?? ''),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('${item['quantity']}'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('${item['price']} SAR'),
-                ),
-              ],
-            );
-          }).toList(),
+              double price = 0.0;
+              if (item['price'] is String) {
+                price = double.tryParse(item['price']) ?? 0.0;
+              } else if (item['price'] is int) {
+                price = item['price'].toDouble();
+              } else if (item['price'] is double) {
+                price = item['price'];
+              }
+
+              int quantity = (item['quantity'] is int) ? item['quantity'] : int.tryParse(item['quantity'].toString()) ?? 1;
+
+              return TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(item['product'] ?? ''),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('$quantity'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('${price.toStringAsFixed(2)} SAR'),
+                  ),
+                ],
+              );
+            }).toList(),
+
         ],
       ),
     );

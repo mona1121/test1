@@ -113,25 +113,33 @@ class ProductIdentificationScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _addToCart( Map<String, dynamic> product) async {
-    final cartCollection = FirebaseFirestore.instance.collection('cart');
-    final existingProduct = await cartCollection.where('id', isEqualTo: productData['id']).limit(1).get();
+  Future<void> _addToCart(Map<String, dynamic> product) async {
+  final cartCollection = FirebaseFirestore.instance.collection('cart');
+  
+  // Check if a product with the same 'code' already exists in the cart
+  final existingProduct = await cartCollection
+      .where('code', isEqualTo: product['code'])
+      .limit(1)
+      .get();
 
-    if (existingProduct.docs.isNotEmpty) {
+  if (existingProduct.docs.isNotEmpty) {
     // If the product exists, increment the quantity
     final existingDoc = existingProduct.docs.first;
-    cartCollection.doc(existingDoc.id).update({
+    await cartCollection.doc(existingDoc.id).update({
       'quantity': FieldValue.increment(1),
     });
-    } else {
-      await cartCollection.doc(product['code']).set({
-        'image': product['image'],
-        'product': product['product'],
-        'price': product['price'],
-        'quantity': 1,
-      });
-    }
+  } else {
+    // If the product does not exist, add it as a new item
+    await cartCollection.doc(product['code']).set({
+      'code': product['code'],
+      'image': product['image'],
+      'product': product['product'],
+      'price': product['price'],
+      'quantity': 1,
+    });
   }
+}
+
 
   Widget _buildRecommendations() {
     return FutureBuilder<List<dynamic>>(

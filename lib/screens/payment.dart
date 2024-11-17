@@ -39,13 +39,24 @@ class PayButton extends StatelessWidget {
               currency: currency,
               description: description,
               customer: customer,
-              redirectUrl: redirectUrl, userId: '',
+              redirectUrl: redirectUrl,
+             userId: ' ',
+            );
+            // Create a TransactionDetails object (replace with actual data)
+            final transactionDetails = TransactionDetails(
+              transactionId: 'transactionId', // Replace with the real transaction ID
+              amount: totalAmount,
+              date: DateTime.now().toString(),
+              userId: 'userId', // Replace with the real user ID
+              status: 'Success', // Replace with the actual payment status
             );
 
             // Navigate to ThankYouScreen on successful payment
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => ThankYouScreen()),
+              MaterialPageRoute(
+                builder: (context) => ThankYouScreen(transactionDetails: transactionDetails),
+              ),
             );
           } catch (e) {
             print("Error creating payment: $e");

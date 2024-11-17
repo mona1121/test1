@@ -8,6 +8,7 @@ import 'history_transactions.dart';
 import 'scanner_screen.dart';
 import 'edit_profile.dart';
 import 'contactUs.dart';
+import '../widgets/transaction_history.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,10 +91,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(
                   "Welcome",
                   style: TextStyle(
-                    fontFamily: 'LeagueSpartan',
-                    fontSize: 40.0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                    fontFamily: 'LeagueSpartan' ,
+                   fontWeight: FontWeight.w700,
+                   fontSize: 46,
+                   color: Colors.black,
                   ),
                 ),
               ),
@@ -107,55 +108,10 @@ class _HomeScreenState extends State<HomeScreen> {
             
 
             // Last Transaction Section
-            
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 20),
-                color: Colors.grey[100],
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Last Transactions',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+            const TransactionHistory(),
 
-                    // Scrollable area for transactions
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(bottom: 80),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildTransactionSection('Today, Sept 29', [
-                              _buildTransactionRow('Jarir BookStore', '09:00 AM', '238.7 SAR', 'J'),
-                              const SizedBox(height: 14),
-                              _buildTransactionRow('Nahdi Group', '12:00 PM', '55.87 SAR', 'N'),
-                            ]),
-                            const SizedBox(height: 20),
-                            _buildTransactionSection('Yesterday, Sept 28', [
-                              _buildTransactionRow('Whites', '07:30 AM', '55.0 SAR', 'A'),
-                              const SizedBox(height: 14),
-                              _buildTransactionRow('Sephora', '08:38 PM', '522.75 SAR', 'S'),
-                            ]),
 
-                            const SizedBox(height: 20),
-
-                            // "More" button
-                            _buildMoreButton(context),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
         ),
       ),
 

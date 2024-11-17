@@ -18,20 +18,25 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _listenToUserData();
   }
 
-  Future<void> _fetchUserData() async {
+  void _listenToUserData() {
     final user = _auth.currentUser;
     if (user != null) {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      if (doc.exists) {
-        final data = doc.data()!;
-        setState(() {
-          userName = data['name'] ?? 'User';
-          points = data['points'] ?? 0;
-        });
-      }
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots()
+          .listen((snapshot) {
+        if (snapshot.exists) {
+          final data = snapshot.data()!;
+          setState(() {
+            userName = data['name'] ?? 'User';
+            points = data['points'] ?? 0;
+          });
+        }
+      });
     }
   }
 
@@ -55,7 +60,6 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
             child: CircleAvatar(
               radius: 120,
               backgroundColor: const Color(0xFFF8C954).withOpacity(0.4),
-
             ),
           ),
           // Card content
@@ -81,7 +85,7 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color.fromARGB(255, 82, 88, 137).withOpacity(0.2)),
+                    border: Border.all(color: const Color(0x525889).withOpacity(0.2)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,10 +93,10 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
                       const Text(
                         'Loyalty Program',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 56, 56, 56),
+                          color: Color(0xFF383838),
                           fontWeight: FontWeight.w500,
                           fontSize: 22,
-                          fontFamily: "LeagueSpartan"
+                          fontFamily: "LeagueSpartan",
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -105,10 +109,10 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
                               Text(
                                 '$points pts',
                                 style: const TextStyle(
-                                   color: Colors.black,
+                                  color: Colors.black,
                                   fontSize: 40,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: "LeagueSpartan"
+                                  fontFamily: "LeagueSpartan",
                                 ),
                               ),
                               const SizedBox(height: 5),
@@ -117,25 +121,22 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
                                 style: const TextStyle(
                                   color: Colors.black45,
                                   fontSize: 17,
-                                  fontFamily: "LeagueSpartan"
+                                  fontFamily: "LeagueSpartan",
                                 ),
                               ),
                             ],
                           ),
                           Icon(
-                            //Icons.military_tech_rounded,
-                            //Icons.diamond_rounded,
-                         Icons.star_rounded, // Use any icon you like
-                          color: const Color.fromARGB(255, 255, 204, 62),
-                          size: 60,
-                          shadows: [
-                            Shadow(
-                              color: const Color.fromARGB(255, 192, 153, 117).withOpacity(0.4),
-                              blurRadius: 40,
-                            ),
-                          ],
-                        ),
-
+                            Icons.star_rounded,
+                            color: const Color(0xFFFFCC3E),
+                            size: 60,
+                            shadows: [
+                              Shadow(
+                                color: const Color(0xFFC09975).withOpacity(0.4),
+                                blurRadius: 40,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -165,4 +166,3 @@ class _LoyaltyCardState extends State<LoyaltyCard> {
     );
   }
 }
-  

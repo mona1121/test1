@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_ready/screens/history_transactions.dart';
 import 'package:pay_ready/screens/home_screen.dart';
 import 'package:pay_ready/screens/welcome_screen.dart';
 
@@ -26,6 +27,7 @@ class PayReady extends StatelessWidget {
       routes: {
         '/home': (context) => HomeScreen(),
         '/welcome': (context) => WelcomeScreen(),
+        '/history_transactions': (context) => HistoryTransactionsScreen(),
       },
     );
   }

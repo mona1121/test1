@@ -29,7 +29,7 @@ class TapPaymentService {
       "threeDSecure": true,
       "description": description,
       "customer": customer,
-      "source": {"id": "src_card"},
+      "source": {"id": "src_all"},
       "redirect": {"url": redirectUrl},
     });
 
@@ -79,10 +79,21 @@ class TapPaymentService {
     }
 
     // Always navigate to ThankYouScreen after the WebView
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ThankYouScreen()),
+      MaterialPageRoute(
+        builder: (context) => ThankYouScreen(
+          transactionDetails: TransactionDetails(
+            transactionId: "txt_${DateTime.now().millisecondsSinceEpoch}",
+            amount: amount,
+            date: DateTime.now().toString(),
+            userId: userId,
+            status: "success",
+          ),
+        ),
+      ),
     );
+
   }
 
   Future<void> saveTransactionToFirestore({
