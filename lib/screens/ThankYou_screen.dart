@@ -17,86 +17,112 @@ class ThankYouScreen extends StatelessWidget {
       'userId': transactionDetails.userId,
     });
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Thank You!",
-        style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.black,
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle, size: 100, color: Colors.green),
-            const SizedBox(height: 16),
-            const Text(
-              "Payment Successful!",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return WillPopScope(
+      onWillPop: () async {
+        // Navigate to home page when back button is pressed
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/home', // Adjust your home route here
+          (route) => false,
+        );
+        return false; // Prevent default back button behavior
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text(
+            "Thank You!",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'LeagueSpartan',
+              fontSize: 32,
             ),
-            const SizedBox(height: 8),
-            Text(
-              "Transaction ID: ${transactionDetails.transactionId}",
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-            // QR Code Section
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ],
+          ),
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              // Navigate to home page when back arrow is pressed
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home', // Adjust your home route here
+                (route) => false,
+              );
+            },
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle, size: 100, color: Colors.green),
+              const SizedBox(height: 16),
+              const Text(
+                "Payment Successful!",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                 Container(
-                  child: QrImageView(
-                    data: qrData,
-                    size: 200,
-                    backgroundColor: Colors.white,
-                    version: QrVersions.auto,
-                  ),
+              const SizedBox(height: 8),
+              Text(
+                "Transaction ID: ${transactionDetails.transactionId}",
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              // QR Code Section
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Place your phone on the gate scanner to open it",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    QrImageView(
+                      data: qrData,
+                      size: 200,
+                      backgroundColor: Colors.white,
+                      version: QrVersions.auto,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Place your phone on the gate scanner to open it",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        '/home', // Adjust your home route here
-                        (route) => false,
-                      );
-                            },
-                      child: const Text('Return to Home'),
-                    ),
-          ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                onPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/home', // Adjust your home route here
+                    (route) => false,
+                  );
+                },
+                child: const Text('Return to Home'),
+              ),
+            ],
+          ),
         ),
       ),
     );

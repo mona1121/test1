@@ -100,17 +100,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            
-
             // Loyalty card
              const LoyaltyCard(),
 
-            
-
             // Last Transaction Section
             const TransactionHistory(),
-
-
+            
             ],
         ),
       ),

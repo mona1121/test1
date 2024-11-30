@@ -29,7 +29,6 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Check if userId is available
     if (_currentUser == null) {
       return Scaffold(
         appBar: AppBar(
@@ -75,7 +74,7 @@ class _CartScreenState extends State<CartScreen> {
               'id': doc.id,
               'image': data['image'],
               'product': data['product'],
-              'price': data['price'],
+              'price': _convertToDouble(data['price']),
               'quantity': data['quantity'] ?? 1,
             };
           }).toList();
@@ -89,7 +88,8 @@ class _CartScreenState extends State<CartScreen> {
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     final item = items[index];
-                    final price = double.tryParse(item['price'].toString()) ?? 0.0;
+                    final price = item['price'];
+                    final quantity = item['quantity'];
 
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -106,6 +106,9 @@ class _CartScreenState extends State<CartScreen> {
                             width: 100,
                             height: 100,
                             fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.broken_image, size: 100);
+                            },
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -113,11 +116,16 @@ class _CartScreenState extends State<CartScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item['product'] ?? '',
+                                  item['product'] ?? 'Unknown Product',
                                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   'Price: SAR ${price.toStringAsFixed(2)}',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'Quantity: $quantity',
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               ],
@@ -130,30 +138,25 @@ class _CartScreenState extends State<CartScreen> {
                                   IconButton(
                                     icon: const Icon(Icons.remove),
                                     onPressed: () {
-                                      if (item['quantity'] > 1) {
-                                        FirebaseFirestore.instance.collection('cart').doc(item['id']).update({
-                                          'quantity': FieldValue.increment(-1),
-                                        });
+                                      if (quantity > 1) {
+                                        _updateQuantity(item['id'], -1);
                                       }
                                     },
                                   ),
-                                  Text('${item['quantity']}'),
+                                  Text('$quantity'),
                                   IconButton(
                                     icon: const Icon(Icons.add),
                                     onPressed: () {
-                                      FirebaseFirestore.instance.collection('cart').doc(item['id']).update({
-                                        'quantity': FieldValue.increment(1),
-                                      });
+                                      _updateQuantity(item['id'], 1);
                                     },
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 color: Colors.red,
                                 onPressed: () {
-                                  FirebaseFirestore.instance.collection('cart').doc(item['id']).delete();
+                                  _removeFromCart(item['id']);
                                 },
                               ),
                             ],
@@ -175,15 +178,16 @@ class _CartScreenState extends State<CartScreen> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => InvoiceScreen(items: items, userId: userId)),
-
+                          MaterialPageRoute(
+                            builder: (context) => InvoiceScreen(items: items, userId: userId),
+                          ),
                         );
                       },
                       child: const Text('Proceed to Payment'),
@@ -198,14 +202,35 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  double _convertToDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    } else if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
+  }
+
   double _calculateTotalPrice(List<Map<String, dynamic>> items) {
     return items.fold(
       0.0,
       (total, item) {
-        final price = (item['price'] is int) ? (item['price'] as int).toDouble() : (item['price'] as double);
-        final quantity = (item['quantity'] is int) ? item['quantity'] as int : (item['quantity'] as double).toInt();
-        return total + price * quantity;
+        final price = item['price'];
+        final quantity = item['quantity'];
+        return total + (price * quantity);
       },
     );
+  }
+
+  void _updateQuantity(String itemId, int change) {
+    FirebaseFirestore.instance.collection('cart').doc(itemId).update({
+      'quantity': FieldValue.increment(change),
+    });
+  }
+
+  void _removeFromCart(String itemId) {
+    FirebaseFirestore.instance.collection('cart').doc(itemId).delete();
   }
 }

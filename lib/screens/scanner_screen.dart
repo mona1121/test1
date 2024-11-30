@@ -26,7 +26,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    try {
+     try {
       var querySnapshot = await firestore
           .collection('products')
           .where('code', isEqualTo: code)
@@ -37,14 +37,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
           productData = querySnapshot.docs.first.data();
           showPopup = true; // Show the popup after fetching product data
         });
-
-        // Navigate to Product Identification screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductIdentificationScreen(productData: productData!),
-          ),
-        );
       } else {
         setState(() {
           productData = null; // No product found

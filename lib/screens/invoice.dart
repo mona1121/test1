@@ -153,7 +153,6 @@ class InvoiceItemsTable extends StatelessWidget {
                 ],
               );
             }).toList(),
-
         ],
       ),
     );

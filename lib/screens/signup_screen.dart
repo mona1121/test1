@@ -214,21 +214,21 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
       onPressed: () async {
-                                User? user = await _auth.signInWithGoogle();
-                                if (user != null) {
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const HomeScreen()),
-                                    (Route<dynamic> route) => false,
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text("Google sign-in failed")),
-                                  );
-                                }
-                              }, // Function to handle Google sign-in
+               User? user = await _auth.signInWithGoogle();
+              if (user != null) {
+                Navigator.of(context).pushAndRemoveUntil(
+                   MaterialPageRoute(
+                      builder: (context) =>
+                        const HomeScreen()),
+                  (Route<dynamic> route) => false,
+                 );
+               } else {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(
+                      content: Text("Google sign-in failed")),
+                 );
+               }
+            }, // Function to handle Google sign-in
       icon: const FaIcon(
         FontAwesomeIcons.google, // Google icon (uses colored version if available)
         color: Colors.white

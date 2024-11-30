@@ -18,6 +18,8 @@ class TapPaymentService {
     required String redirectUrl,
     required String userId,
   }) async {
+    final String transactionId = "txt_${DateTime.now().millisecondsSinceEpoch}";
+
     final headers = {
       "Authorization": "Bearer $_apiKey",
       "Content-Type": "application/json",
@@ -56,7 +58,7 @@ class TapPaymentService {
         final int pointsGained = (amount / 10).floor();
         await saveTransactionToFirestore(
           userId: userId,
-          transactionId: "txt_${DateTime.now().millisecondsSinceEpoch}",
+          transactionId: transactionId,
           amount: amount,
           status: "success",
           pointsGained: pointsGained,
@@ -84,7 +86,7 @@ class TapPaymentService {
       MaterialPageRoute(
         builder: (context) => ThankYouScreen(
           transactionDetails: TransactionDetails(
-            transactionId: "txt_${DateTime.now().millisecondsSinceEpoch}",
+            transactionId: transactionId,
             amount: amount,
             date: DateTime.now().toString(),
             userId: userId,
